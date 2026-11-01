@@ -91,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen>
                   FadeTransition(
                     opacity: _tagline,
                     child: const Text(
-                      'Untangle. Tap. Unwind.',
+                      'Tap. Slide. Clear.',
                       style: TextStyle(
                         color: Color(0xFF6E4E86),
                         fontWeight: FontWeight.w700,

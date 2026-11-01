@@ -27,7 +27,7 @@ class DailyScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Daily unwind',
+                    'Daily puzzle',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w800,

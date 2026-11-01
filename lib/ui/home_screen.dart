@@ -56,7 +56,7 @@ class HomeScreen extends StatelessWidget {
                   const FittedBox(child: BrandMark()),
                   const SizedBox(height: 10),
                   const Text(
-                    'Untangle. Tap. Unwind.',
+                    'Tap. Slide. Clear.',
                     style: TextStyle(
                       color: Color(0xFF6E4E86),
                       fontWeight: FontWeight.w700,

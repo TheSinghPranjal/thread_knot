@@ -643,7 +643,8 @@ class _KnotMarkPainter extends CustomPainter {
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
-/// Hero illustration: three tangled ropes with knotted ends.
+/// Hero illustration: threads on a pegboard, one sliding off along its
+/// clear path while the others wait their turn.
 class KnotHero extends StatelessWidget {
   const KnotHero({super.key});
 
@@ -668,50 +669,65 @@ class _KnotHeroPainter extends CustomPainter {
     final s = size.width / 300;
     canvas.save();
     canvas.scale(s);
-    const w = 22.0;
-    const knotCell = 74.0;
+    const w = 15.0;
+    const knotCell = 52.0;
 
-    final teal = Path()
-      ..moveTo(46, 98)
-      ..cubicTo(110, 70, 160, 120, 250, 112);
-    final ring = Path()
-      ..addOval(Rect.fromCircle(center: const Offset(150, 82), radius: 46));
-    final redTail = Path()
-      ..moveTo(185, 112)
-      ..quadraticBezierTo(215, 130, 252, 118);
-    final gold = Path()
-      ..moveTo(112, 142)
-      ..cubicTo(150, 140, 160, 60, 232, 42);
+    // Pegboard holes.
+    final rim = Paint()..color = Colors.white.withValues(alpha: 0.6);
+    final hole = Paint()..color = const Color(0xFFD9A48A);
+    final inner = Paint()..color = const Color(0xFFBF7F64);
+    for (var i = 0; i < 6; i++) {
+      for (var j = 0; j < 3; j++) {
+        final p = Offset(40 + i * 40.0, 40 + j * 45.0);
+        canvas.drawCircle(p + const Offset(0, 1.5), 4.6, rim);
+        canvas.drawCircle(p, 4, hole);
+        canvas.drawCircle(p + const Offset(0, -0.9), 2.9, inner);
+      }
+    }
 
     void rope(Path p, Color c) =>
         paintRope(canvas: canvas, path: p, color: c, width: w);
-    void knot(Offset at, Color c, Dir facing, [double scale = 1]) => paintKnot(
+    void knot(Offset at, Color c, Dir facing) => paintKnot(
           canvas: canvas,
           center: at,
           facing: facing,
-          cell: knotCell * scale,
+          cell: knotCell,
           stroke: w,
           color: c,
         );
 
-    rope(ring, _coral);
-    rope(teal, _teal);
-    rope(redTail, _coral);
-    rope(gold, _gold);
-    // Re-draw the top arc of the ring so the ropes weave under it.
-    final top = ring.computeMetrics().first;
-    rope(top.extractPath(top.length * 0.55, top.length * 0.85), _coral);
+    // Gold: vertical, knot pointing up.
+    rope(Path()..moveTo(160, 130)..lineTo(160, 40), _gold);
+    knot(const Offset(160, 40), _gold, Dir.up);
 
-    knot(const Offset(46, 98), _teal, Dir.left);
-    knot(const Offset(234, 42), _gold, Dir.right);
-    knot(const Offset(254, 118), _coral, Dir.right, 0.9);
+    // Teal: L-shape, knot pointing right, blocked by gold.
+    rope(
+      Path()
+        ..moveTo(40, 130)
+        ..lineTo(40, 85)
+        ..lineTo(120, 85),
+      _teal,
+    );
+    knot(const Offset(120, 85), _teal, Dir.right);
+
+    // Coral: free path, sliding off to the right.
+    final trail = Paint()
+      ..color = _coral.withValues(alpha: 0.35)
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+    for (var x = 196.0; x < 228; x += 12) {
+      canvas.drawLine(Offset(x, 112), Offset(x + 6, 112), trail);
+      canvas.drawLine(Offset(x + 4, 148), Offset(x + 10, 148), trail);
+    }
+    rope(Path()..moveTo(214, 130)..lineTo(266, 130), _coral);
+    knot(const Offset(266, 130), _coral, Dir.right);
 
     _sparkles(
       canvas,
-      const Offset(66, 40),
-      13,
-      -math.pi * 0.95,
-      -math.pi * 0.4,
+      const Offset(282, 104),
+      11,
+      -math.pi * 0.55,
+      math.pi * 0.05,
     );
     canvas.restore();
   }

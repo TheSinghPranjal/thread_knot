@@ -124,7 +124,7 @@ final _level1 = LevelDef(
   title: 'Level 1',
   cols: 5,
   rows: 5,
-  coachMark: 'Tap the knot. If the path is clear, the string *slides out*.',
+  coachMark: 'Tap a knot. Its thread *slides out* the way the knot points.',
   threads: [
     piece('a', line(1, 2, 3, 2)),
   ],
@@ -135,7 +135,7 @@ final _level2 = LevelDef(
   title: 'Level 2',
   cols: 5,
   rows: 5,
-  coachMark: 'If another string is in front of the knot, it *cannot leave*.',
+  coachMark: 'If another thread blocks the knot\'s path, it *can\'t move*.',
   threads: [
     piece('outer', line(3, 2, 3, 0)),
     piece('inner', line(0, 2, 2, 2)),
@@ -147,6 +147,7 @@ final _level3 = LevelDef(
   title: 'Level 3',
   cols: 5,
   rows: 5,
+  coachMark: 'Clear the threads in the *right order*. Look before you tap!',
   threads: [
     piece('right', line(4, 1, 4, 4)),
     piece('mid', line(0, 2, 3, 2)),

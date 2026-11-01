@@ -149,7 +149,7 @@ class _CompleteOverlayState extends State<CompleteOverlay>
   }
 }
 
-/// "Nicely / Untangled!" with chunky purple outlines.
+/// "Path / Cleared!" with chunky purple outlines.
 class _Headline extends StatelessWidget {
   const _Headline();
 
@@ -201,9 +201,9 @@ class _Headline extends StatelessWidget {
     return FittedBox(
       child: Column(
         children: [
-          _outlined('Nicely', 50, const [Colors.white, Color(0xFFF4E4FF)]),
+          _outlined('Path', 50, const [Colors.white, Color(0xFFF4E4FF)]),
           const SizedBox(height: 2),
-          _outlined('Untangled!', 58, const [Color(0xFFFFE45C), Color(0xFFFFA81F)]),
+          _outlined('Cleared!', 58, const [Color(0xFFFFE45C), Color(0xFFFFA81F)]),
         ],
       ),
     );
@@ -573,7 +573,7 @@ class FailOverlay extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Oops, tangled up',
+                'Out of hearts',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
@@ -582,7 +582,7 @@ class FailOverlay extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const Text(
-                'No rush — try a different order.',
+                'A thread was blocked. Try a different order.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppTheme.muted),
               ),

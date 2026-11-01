@@ -1,5 +1,5 @@
 name: thread_knot
-description: "Thread Knot — a relaxing tap-away puzzle with strings and knots."
+description: "Thread Knot — tap a knot to slide its thread off the board, and clear every thread in the right order."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
