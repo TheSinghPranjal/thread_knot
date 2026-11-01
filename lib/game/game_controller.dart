@@ -17,7 +17,8 @@ class GameController extends ChangeNotifier {
   final LevelDef level;
 
   late List<ThreadPiece> remaining;
-  ThreadPiece? exiting;
+  /// Threads currently sliding off the board. Several can leave at once.
+  final List<ThreadPiece> exiting = [];
   GameStatus status = GameStatus.playing;
   int lives = 3;
   int hintsLeft = 2;
@@ -25,16 +26,14 @@ class GameController extends ChangeNotifier {
   String? bumpId;
 
   int get startCount => level.threads.length;
-  int get remainingCount => remaining.length + (exiting == null ? 0 : 1);
+  int get remainingCount => remaining.length + exiting.length;
   int get clearedCount => startCount - remaining.length;
 
   Occupancy get occupancy => Occupancy.fromThreads(remaining);
 
-  bool get isBusy => exiting != null;
-
   void restart() {
     remaining = List<ThreadPiece>.from(level.threads);
-    exiting = null;
+    exiting.clear();
     status = GameStatus.playing;
     lives = level.lives;
     hintsLeft = level.hints;
@@ -44,7 +43,7 @@ class GameController extends ChangeNotifier {
   }
 
   TapResult tap(String id) {
-    if (status != GameStatus.playing || isBusy) return TapResult.ignored;
+    if (status != GameStatus.playing) return TapResult.ignored;
     final index = remaining.indexWhere((thread) => thread.id == id);
     if (index < 0) return TapResult.ignored;
 
@@ -64,7 +63,7 @@ class GameController extends ChangeNotifier {
     }
 
     remaining.removeAt(index);
-    exiting = thread;
+    exiting.add(thread);
     highlightedId = null;
     bumpId = null;
     notifyListeners();
@@ -76,16 +75,16 @@ class GameController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void completeExit() {
-    exiting = null;
-    if (remaining.isEmpty) {
+  void completeExit(String id) {
+    exiting.removeWhere((t) => t.id == id);
+    if (status == GameStatus.playing && remaining.isEmpty && exiting.isEmpty) {
       status = GameStatus.won;
     }
     notifyListeners();
   }
 
   String? useHint() {
-    if (status != GameStatus.playing || isBusy) return null;
+    if (status != GameStatus.playing) return null;
     if (hintsLeft <= 0) return null;
     final id = nextHintId(level, remaining);
     if (id == null) return null;

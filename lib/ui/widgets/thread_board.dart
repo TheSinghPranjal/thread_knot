@@ -26,9 +26,9 @@ class ThreadBoard extends StatefulWidget {
 
 class _ThreadBoardState extends State<ThreadBoard>
     with TickerProviderStateMixin {
-  late final AnimationController _exit;
+  /// One animation per thread currently sliding off, keyed by thread id.
+  final Map<String, AnimationController> _exits = {};
   late final AnimationController _bump;
-  late final Animation<double> _exitT;
   GameStatus _lastStatus = GameStatus.playing;
 
   GameController get c => widget.controller;
@@ -38,21 +38,10 @@ class _ThreadBoardState extends State<ThreadBoard>
   @override
   void initState() {
     super.initState();
-    _exit = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
     _bump = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 180),
     );
-    _exitT = CurvedAnimation(parent: _exit, curve: Curves.easeInOut);
-    _exit.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        c.completeExit();
-        _exit.value = 0;
-      }
-    });
     _bump.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         c.clearBump();
@@ -68,10 +57,42 @@ class _ThreadBoardState extends State<ThreadBoard>
     if (oldWidget.controller != widget.controller) {
       oldWidget.controller.removeListener(_onCtrl);
       widget.controller.addListener(_onCtrl);
+      _stopExits(keep: const {});
+      _lastStatus = widget.controller.status;
+    }
+  }
+
+  void _startExit(ThreadPiece thread) {
+    final extra = thread.vertices.length +
+        (c.level.cols > c.level.rows ? c.level.cols : c.level.rows);
+    final ms = (90 * extra).clamp(360, 900).round();
+    final ctrl = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: ms),
+    );
+    _exits[thread.id] = ctrl;
+    ctrl.addListener(() => setState(() {}));
+    ctrl.addStatusListener((status) {
+      if (status != AnimationStatus.completed) return;
+      _exits.remove(thread.id);
+      // Dispose after this callback returns, not while it is notifying.
+      Future.microtask(ctrl.dispose);
+      c.completeExit(thread.id);
+    });
+    ctrl.forward();
+  }
+
+  /// Stops exit animations whose thread is no longer leaving (e.g. after a
+  /// restart), keeping those listed in [keep].
+  void _stopExits({required Set<String> keep}) {
+    final stale = _exits.keys.where((id) => !keep.contains(id)).toList();
+    for (final id in stale) {
+      _exits.remove(id)!.dispose();
     }
   }
 
   void _onCtrl() {
+    _stopExits(keep: {for (final t in c.exiting) t.id});
     if (_lastStatus != GameStatus.won && c.status == GameStatus.won) {
       widget.onWin?.call();
     }
@@ -85,13 +106,16 @@ class _ThreadBoardState extends State<ThreadBoard>
   @override
   void dispose() {
     c.removeListener(_onCtrl);
-    _exit.dispose();
+    for (final ctrl in _exits.values) {
+      ctrl.dispose();
+    }
+    _exits.clear();
     _bump.dispose();
     super.dispose();
   }
 
   void _handleTap(Offset local, Size size) {
-    if (c.isBusy || c.status != GameStatus.playing) return;
+    if (c.status != GameStatus.playing) return;
     final layout = BoardLayout(
       cols: c.level.cols,
       rows: c.level.rows,
@@ -102,13 +126,7 @@ class _ThreadBoardState extends State<ThreadBoard>
     final result = c.tap(id);
     if (result == TapResult.exit) {
       widget.onFirstMove?.call();
-      final extra = c.exiting == null
-          ? 6
-          : c.exiting!.vertices.length +
-              (c.level.cols > c.level.rows ? c.level.cols : c.level.rows);
-      final ms = (90 * extra).clamp(360, 900).round();
-      _exit.duration = Duration(milliseconds: ms);
-      _exit.forward(from: 0);
+      _startExit(c.exiting.last);
     } else if (result == TapResult.blocked) {
       widget.onFirstMove?.call();
       _bump.forward(from: 0);
@@ -150,8 +168,13 @@ class _ThreadBoardState extends State<ThreadBoard>
 
   @override
   Widget build(BuildContext context) {
+    final sliding = <(ThreadPiece, double)>[
+      for (final thread in c.exiting)
+        if (_exits[thread.id] case final ctrl?)
+          (thread, Curves.easeInOut.transform(ctrl.value)),
+    ];
     return AnimatedBuilder(
-      animation: Listenable.merge([_exitT, _bump]),
+      animation: _bump,
       builder: (context, _) {
         return LayoutBuilder(
           builder: (context, constraints) {
@@ -169,8 +192,7 @@ class _ThreadBoardState extends State<ThreadBoard>
                   layout: layout,
                   threads: c.remaining,
                   colorOf: _colorOf,
-                  exiting: c.exiting,
-                  exitT: _exitT.value,
+                  exiting: sliding,
                   bumpId: c.bumpId,
                   bumpT: _bump.value,
                   highlightedId: c.highlightedId,

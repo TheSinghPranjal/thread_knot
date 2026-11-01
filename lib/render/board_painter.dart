@@ -33,8 +33,7 @@ class BoardPainter extends CustomPainter {
     required this.layout,
     required this.threads,
     required this.colorOf,
-    this.exiting,
-    this.exitT = 0,
+    this.exiting = const [],
     this.bumpId,
     this.bumpT = 0,
     this.highlightedId,
@@ -43,8 +42,8 @@ class BoardPainter extends CustomPainter {
   final BoardLayout layout;
   final List<ThreadPiece> threads;
   final Color Function(ThreadPiece) colorOf;
-  final ThreadPiece? exiting;
-  final double exitT;
+  /// Threads sliding off, each with its animation progress (0..1).
+  final List<(ThreadPiece, double)> exiting;
   final String? bumpId;
   final double bumpT;
   final String? highlightedId;
@@ -55,8 +54,8 @@ class BoardPainter extends CustomPainter {
     for (final thread in threads) {
       _paintThread(canvas, thread);
     }
-    if (exiting != null) {
-      _paintThread(canvas, exiting!, crawling: true);
+    for (final (thread, t) in exiting) {
+      _paintThread(canvas, thread, exitT: t);
     }
   }
 
@@ -75,12 +74,12 @@ class BoardPainter extends CustomPainter {
     }
   }
 
-  void _paintThread(Canvas canvas, ThreadPiece thread, {bool crawling = false}) {
+  void _paintThread(Canvas canvas, ThreadPiece thread, {double? exitT}) {
     List<Offset> pixels;
     Offset knotPos;
     var drawFacing = thread.facing;
 
-    if (crawling) {
+    if (exitT != null) {
       final pose = crawlPose(thread: thread, layout: layout, t: exitT);
       pixels = pose.pixels;
       knotPos = pose.knot;
@@ -127,11 +126,11 @@ class BoardPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant BoardPainter oldDelegate) {
-    return oldDelegate.exitT != exitT ||
+    return exiting.isNotEmpty ||
+        oldDelegate.exiting.isNotEmpty ||
         oldDelegate.bumpT != bumpT ||
         oldDelegate.highlightedId != highlightedId ||
         oldDelegate.bumpId != bumpId ||
-        oldDelegate.exiting?.id != exiting?.id ||
         oldDelegate.threads.length != threads.length ||
         oldDelegate.layout.cell != layout.cell;
   }
