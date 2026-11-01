@@ -23,8 +23,6 @@ class GameController extends ChangeNotifier {
   int hintsLeft = 2;
   String? highlightedId;
   String? bumpId;
-  bool keepGoingShown = false;
-  bool keepGoingPulse = false;
 
   int get startCount => level.threads.length;
   int get remainingCount => remaining.length + (exiting == null ? 0 : 1);
@@ -42,8 +40,6 @@ class GameController extends ChangeNotifier {
     hintsLeft = level.hints;
     highlightedId = null;
     bumpId = null;
-    keepGoingShown = false;
-    keepGoingPulse = false;
     notifyListeners();
   }
 
@@ -71,12 +67,6 @@ class GameController extends ChangeNotifier {
     exiting = thread;
     highlightedId = null;
     bumpId = null;
-    if (!keepGoingShown &&
-        remaining.isNotEmpty &&
-        clearedCount >= (startCount / 2).ceil()) {
-      keepGoingShown = true;
-      keepGoingPulse = true;
-    }
     notifyListeners();
     return TapResult.exit;
   }
@@ -91,11 +81,6 @@ class GameController extends ChangeNotifier {
     if (remaining.isEmpty) {
       status = GameStatus.won;
     }
-    notifyListeners();
-  }
-
-  void dismissKeepGoing() {
-    keepGoingPulse = false;
     notifyListeners();
   }
 

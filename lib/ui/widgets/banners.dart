@@ -107,33 +107,3 @@ class _RaysPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _RaysPainter oldDelegate) => false;
 }
-
-class KeepGoingToast extends StatelessWidget {
-  const KeepGoingToast({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppTheme.teal, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.teal.withValues(alpha: 0.16),
-            blurRadius: 16,
-          ),
-        ],
-      ),
-      child: const Text(
-        'Keep going  ✨',
-        style: TextStyle(
-          color: AppTheme.ink,
-          fontWeight: FontWeight.w800,
-          fontSize: 16,
-        ),
-      ),
-    );
-  }
-}

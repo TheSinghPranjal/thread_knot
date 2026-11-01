@@ -35,7 +35,6 @@ class _GameScreenState extends State<GameScreen> {
   bool _hideCoach = false;
   bool _showComplete = false;
   bool _showFail = false;
-  bool _keepGoingScheduled = false;
 
   @override
   void initState() {
@@ -43,28 +42,14 @@ class _GameScreenState extends State<GameScreen> {
     _playIndex = widget.levelIndex;
     _daily = widget.isDaily;
     _controller = GameController(_currentLevel);
-    _controller.addListener(_onController);
   }
 
   LevelDef get _currentLevel =>
       _daily ? dailyLevelFor(DateTime.now()) : campaignLevelAt(_playIndex);
 
-  void _onController() {
-    if (_controller.keepGoingPulse && !_keepGoingScheduled) {
-      _keepGoingScheduled = true;
-      Future<void>.delayed(const Duration(seconds: 2), () {
-        if (!mounted) return;
-        _controller.dismissKeepGoing();
-        _keepGoingScheduled = false;
-      });
-    }
-  }
-
   void _bind(GameController next) {
-    _controller.removeListener(_onController);
     _controller.dispose();
     _controller = next;
-    _controller.addListener(_onController);
   }
 
   void _reload(int index) {
@@ -75,7 +60,6 @@ class _GameScreenState extends State<GameScreen> {
       _showComplete = false;
       _showFail = false;
       _hideCoach = false;
-      _keepGoingScheduled = false;
     });
   }
 
@@ -153,7 +137,6 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   void dispose() {
-    _controller.removeListener(_onController);
     _controller.dispose();
     super.dispose();
   }
@@ -209,32 +192,17 @@ class _GameScreenState extends State<GameScreen> {
                   },
                 ),
                 Expanded(
-                  child: Stack(
-                    fit: StackFit.expand,
-                    alignment: Alignment.center,
-                    children: [
-                      Positioned.fill(
-                        child: ThreadBoard(
-                          controller: _controller,
-                          onWin: _onWin,
-                          onLose: _onLose,
-                          onFirstMove: () {
-                            if (!_hideCoach) {
-                              setState(() => _hideCoach = true);
-                            }
-                          },
-                        ),
-                      ),
-                      ListenableBuilder(
-                        listenable: _controller,
-                        builder: (context, _) {
-                          if (!_controller.keepGoingPulse) {
-                            return const SizedBox.shrink();
-                          }
-                          return const Center(child: KeepGoingToast());
-                        },
-                      ),
-                    ],
+                  child: SizedBox.expand(
+                    child: ThreadBoard(
+                      controller: _controller,
+                      onWin: _onWin,
+                      onLose: _onLose,
+                      onFirstMove: () {
+                        if (!_hideCoach) {
+                          setState(() => _hideCoach = true);
+                        }
+                      },
+                    ),
                   ),
                 ),
                 if (level.coachMark != null)
