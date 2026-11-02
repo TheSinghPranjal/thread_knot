@@ -7,17 +7,41 @@ import '../../models/dir.dart';
 import '../../theme/app_theme.dart';
 import 'decor.dart';
 
+/// Full-bleed pastel yarn artwork used behind the home screen.
+const homeBackgroundAsset = 'assets/images/home_bg.jpg';
+
 class WaveBackdrop extends StatelessWidget {
-  const WaveBackdrop({super.key, required this.child, this.yarnBalls = false});
+  const WaveBackdrop({
+    super.key,
+    required this.child,
+    this.yarnBalls = false,
+    this.image,
+  });
 
   final Widget child;
   final bool yarnBalls;
+
+  /// When set, this asset fills the backdrop instead of the painted hills.
+  final String? image;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Positioned.fill(child: CozyBackground(yarnBalls: yarnBalls)),
+        Positioned.fill(
+          child: image == null
+              ? CozyBackground(yarnBalls: yarnBalls)
+              : DecoratedBox(
+                  // Matches the artwork's base tone while it decodes.
+                  decoration: const BoxDecoration(color: Color(0xFFFBE4D7)),
+                  child: Image.asset(
+                    image!,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.bottomCenter,
+                    gaplessPlayback: true,
+                  ),
+                ),
+        ),
         child,
       ],
     );

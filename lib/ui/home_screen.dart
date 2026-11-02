@@ -27,7 +27,7 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     return WaveBackdrop(
-      yarnBalls: true,
+      image: homeBackgroundAsset,
       child: SafeArea(
         child: ListenableBuilder(
           listenable: progress,
