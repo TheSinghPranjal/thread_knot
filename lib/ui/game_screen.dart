@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/levels.dart';
 import '../game/game_controller.dart';
 import '../models/level_def.dart';
+import '../models/profile.dart';
 import '../persist/progress.dart';
 import '../theme/app_theme.dart';
 import 'overlays/complete_overlay.dart';
@@ -32,6 +33,9 @@ class _GameScreenState extends State<GameScreen> {
   late GameController _controller;
   late int _playIndex;
   late bool _daily;
+
+  /// Profile that started the current level; the win is credited to it.
+  late PlayerProfile _owner;
   bool _hideCoach = false;
   bool _showComplete = false;
   bool _showFail = false;
@@ -41,6 +45,7 @@ class _GameScreenState extends State<GameScreen> {
     super.initState();
     _playIndex = widget.levelIndex;
     _daily = widget.isDaily;
+    _owner = widget.progress.profile;
     _controller = GameController(_currentLevel);
   }
 
@@ -55,6 +60,7 @@ class _GameScreenState extends State<GameScreen> {
   void _reload(int index) {
     _playIndex = index;
     _daily = false;
+    _owner = widget.progress.profile;
     _bind(GameController(campaignLevelAt(index)));
     setState(() {
       _showComplete = false;
@@ -65,11 +71,12 @@ class _GameScreenState extends State<GameScreen> {
 
   Future<void> _onWin() async {
     if (_daily) {
-      await widget.progress.completeDaily(DateTime.now());
+      await widget.progress.completeDaily(DateTime.now(), forProfile: _owner);
     } else {
       await widget.progress.completeCampaignLevel(
         _playIndex,
         campaignLevels.length,
+        forProfile: _owner,
       );
     }
     if (!mounted) return;
@@ -250,6 +257,9 @@ class _GameScreenState extends State<GameScreen> {
               onNext: () {
                 if (_daily || isLast) {
                   Navigator.pop(context);
+                } else if (widget.progress.profile != _owner) {
+                  // Player switched profiles: continue from their own save.
+                  _reload(widget.progress.campaignIndex);
                 } else {
                   _reload(_playIndex + 1);
                 }

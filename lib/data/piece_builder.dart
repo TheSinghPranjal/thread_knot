@@ -17,12 +17,7 @@ ThreadPiece piece(
     vertices.last.c,
     vertices.last.r,
   );
-  return ThreadPiece(
-    id: id,
-    color: color,
-    vertices: vertices,
-    facing: facing,
-  );
+  return ThreadPiece(id: id, color: color, vertices: vertices, facing: facing);
 }
 
 /// Inclusive orthogonal line from (c0,r0) to (c1,r1). Head is the last point.

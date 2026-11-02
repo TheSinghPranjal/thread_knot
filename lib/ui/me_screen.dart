@@ -27,8 +27,12 @@ class MeScreen extends StatelessWidget {
                   Row(
                     children: [
                       GestureDetector(
-                        onTap: () => showSettingsSheet(context, progress: progress),
-                        child: ProfileAvatar(profile: progress.profile, size: 64),
+                        onTap: () =>
+                            showSettingsSheet(context, progress: progress),
+                        child: ProfileAvatar(
+                          profile: progress.profile,
+                          size: 64,
+                        ),
                       ),
                       const SizedBox(width: 14),
                       Expanded(
@@ -52,7 +56,8 @@ class MeScreen extends StatelessWidget {
                       ),
                       PuffyCircleButton(
                         size: 48,
-                        onTap: () => showSettingsSheet(context, progress: progress),
+                        onTap: () =>
+                            showSettingsSheet(context, progress: progress),
                         child: const Icon(
                           Icons.settings_rounded,
                           color: Color(0xFFE8503C),
@@ -64,7 +69,8 @@ class MeScreen extends StatelessWidget {
                   _StatTile(
                     emoji: '🧵',
                     label: 'Levels cleared',
-                    value: '${progress.levelsCleared} / ${campaignLevels.length}',
+                    value:
+                        '${progress.levelsCleared} / ${campaignLevels.length}',
                   ),
                   _StatTile(
                     emoji: '📍',
@@ -124,10 +130,7 @@ class _StatTile extends StatelessWidget {
           Text(emoji, style: const TextStyle(fontSize: 20)),
           const SizedBox(width: 12),
           Expanded(
-            child: Text(
-              label,
-              style: const TextStyle(color: AppTheme.muted),
-            ),
+            child: Text(label, style: const TextStyle(color: AppTheme.muted)),
           ),
           Text(
             value,

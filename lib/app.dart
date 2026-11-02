@@ -18,9 +18,7 @@ class ThreadKnotApp extends StatelessWidget {
       title: 'Thread Knot',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      home: SplashScreen(
-        next: (_) => AppShell(progress: progress),
-      ),
+      home: SplashScreen(next: (_) => AppShell(progress: progress)),
     );
   }
 }

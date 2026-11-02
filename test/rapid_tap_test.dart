@@ -47,7 +47,11 @@ void main() {
       ),
     );
     final board = tester.getTopLeft(find.byType(ThreadBoard));
-    final layout = BoardLayout(cols: c.level.cols, rows: c.level.rows, size: size);
+    final layout = BoardLayout(
+      cols: c.level.cols,
+      rows: c.level.rows,
+      size: size,
+    );
     Offset knotOf(String id) {
       final ThreadPiece t = c.level.threads.firstWhere((t) => t.id == id);
       return board + knotCenter(layout.point(t.head), t.facing, layout.cell);

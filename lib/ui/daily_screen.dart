@@ -37,10 +37,7 @@ class DailyScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   const Text(
                     'A fresh board every morning. No timer — just a little reset.',
-                    style: TextStyle(
-                      color: AppTheme.muted,
-                      height: 1.4,
-                    ),
+                    style: TextStyle(color: AppTheme.muted, height: 1.4),
                   ),
                   const SizedBox(height: 24),
                   DailyChallengeCard(

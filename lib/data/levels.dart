@@ -1,9 +1,16 @@
+import 'dart:collection';
+
 import '../game/level_validator.dart';
 import '../models/level_def.dart';
 import '../models/thread_piece.dart';
+import 'level_generator.dart';
 import 'piece_builder.dart';
 
-final List<LevelDef> campaignLevels = List.unmodifiable([
+/// Total campaign length: 10 hand-made tutorial levels, then generated ones.
+const int campaignLength = 120;
+const int _handMadeCount = 10;
+
+final List<LevelDef> _handMade = [
   _level1,
   _level2,
   _level3,
@@ -14,92 +21,72 @@ final List<LevelDef> campaignLevels = List.unmodifiable([
   _level8,
   _level9,
   _level10,
-  _level11,
-  _level12,
-  _level13,
-  _level14,
-  _packed(
-    id: 15,
-    title: 'Level 15',
-    cols: 10,
-    rows: 10,
-    difficulty: 'Hard',
-    rowSplits: const [
-      [3, 6, 10],
-      [4, 10],
-      [2, 5, 8, 10],
-      [6, 10],
-      [3, 7, 10],
-      [4, 8, 10],
-      [2, 6, 10],
-      [5, 10],
-      [3, 6, 10],
-      [4, 7, 10],
-    ],
-  ),
-  _packed(
-    id: 16,
-    title: 'Level 16',
-    cols: 10,
-    rows: 10,
-    difficulty: 'Hard',
-    facingLeftRows: const {1, 4, 7},
-    rowSplits: const [
-      [2, 5, 9, 10],
-      [3, 7, 10],
-      [4, 8, 10],
-      [2, 6, 10],
-      [5, 10],
-      [3, 6, 9, 10],
-      [4, 10],
-      [2, 5, 8, 10],
-      [3, 7, 10],
-      [6, 10],
-    ],
-  ),
-  _columnPacked(
-    id: 17,
-    title: 'Level 17',
-    cols: 10,
-    rows: 12,
-    difficulty: 'Hard',
-    colSplits: const [
-      [3, 7, 12],
-      [4, 8, 12],
-      [2, 6, 12],
-      [5, 12],
-      [3, 8, 12],
-      [4, 9, 12],
-      [2, 7, 12],
-      [6, 12],
-      [3, 6, 12],
-      [4, 8, 12],
-    ],
-  ),
-  _packed(
-    id: 18,
-    title: 'Level 18',
-    cols: 12,
-    rows: 10,
-    difficulty: 'Hard',
-    facingLeftRows: const {0, 3, 6, 9},
-    crimsonRow: 5,
-    rowSplits: const [
-      [4, 8, 12],
-      [3, 7, 12],
-      [2, 6, 9, 12],
-      [5, 12],
-      [3, 8, 12],
-      [4, 7, 12],
-      [2, 5, 10, 12],
-      [6, 12],
-      [3, 6, 9, 12],
-      [4, 8, 12],
-    ],
-  ),
-  _level19,
-  _trophyLevel20,
-]);
+];
+
+/// Levels are built on first use and cached, so startup stays instant.
+final List<LevelDef> campaignLevels = _LazyLevels();
+
+class _LazyLevels extends ListBase<LevelDef> {
+  final List<LevelDef?> _cache = List.filled(campaignLength, null);
+
+  @override
+  int get length => campaignLength;
+
+  @override
+  set length(int value) => throw UnsupportedError('read-only');
+
+  @override
+  LevelDef operator [](int index) => _cache[index] ??= _buildLevel(index);
+
+  @override
+  void operator []=(int index, LevelDef value) =>
+      throw UnsupportedError('read-only');
+}
+
+LevelDef _buildLevel(int index) {
+  if (index < _handMadeCount) return _handMade[index];
+  final id = index + 1;
+  return generateLevel(
+    id: id,
+    spec: specForLevel(id),
+    seed: id,
+    difficulty: difficultyForLevel(id),
+  );
+}
+
+/// Difficulty ramp for generated levels: bigger boards (more dots), longer
+/// and more twisted threads, fewer tappable threads, longer unlock chains.
+GenSpec specForLevel(int id) {
+  final t = ((id - _handMadeCount - 1) / (campaignLength - _handMadeCount - 1))
+      .clamp(0.0, 1.0);
+  // Small bump every 5th level so the curve has peaks and breathers.
+  final bump = id % 5 == 0 ? 1 : 0;
+  final cols = (6 + (t * 4.99).floor() + (bump > 0 && t < 0.9 ? 1 : 0)).clamp(
+    6,
+    10,
+  );
+  final rows = (cols + 1 + (t * 3).floor()).clamp(7, 13);
+  return GenSpec(
+    cols: cols,
+    rows: rows,
+    minLen: t < 0.5 ? 2 : 3,
+    maxLen: 4 + (t * 5).floor(),
+    maxBends: 1 + (t * 3).floor(),
+    minFree: 2,
+    maxFree: t < 0.4 ? 3 : 2,
+    maxFreeDuringPlay: t < 0.4 ? 4 : 3,
+    minDepth: 3 + (t * 6).floor() + bump,
+    fill: 0.6 + t * 0.15,
+  );
+}
+
+String difficultyForLevel(int id) {
+  if (id <= _handMadeCount) return id >= 8 ? 'Hard' : 'Normal';
+  final t = (id - _handMadeCount) / (campaignLength - _handMadeCount);
+  if (t < 0.25) return 'Normal';
+  if (t < 0.6) return 'Hard';
+  return 'Expert';
+}
 
 LevelDef campaignLevelAt(int index) {
   final clamped = index.clamp(0, campaignLevels.length - 1);
@@ -108,7 +95,8 @@ LevelDef campaignLevelAt(int index) {
 
 int dailyLevelIndex(DateTime date) {
   final seed = date.year * 10000 + date.month * 100 + date.day;
-  return 7 + (seed.abs() % 7);
+  // Pick from the middle of the campaign so the daily is a fair challenge.
+  return 20 + (seed.abs() % 60);
 }
 
 LevelDef dailyLevelFor(DateTime date) => campaignLevels[dailyLevelIndex(date)];
@@ -125,9 +113,7 @@ final _level1 = LevelDef(
   cols: 5,
   rows: 5,
   coachMark: 'Tap a knot. Its thread *slides out* the way the knot points.',
-  threads: [
-    piece('a', line(1, 2, 3, 2)),
-  ],
+  threads: [piece('a', line(1, 2, 3, 2))],
 );
 
 final _level2 = LevelDef(
@@ -136,10 +122,7 @@ final _level2 = LevelDef(
   cols: 5,
   rows: 5,
   coachMark: 'If another thread blocks the knot\'s path, it *can\'t move*.',
-  threads: [
-    piece('outer', line(3, 2, 3, 0)),
-    piece('inner', line(0, 2, 2, 2)),
-  ],
+  threads: [piece('outer', line(3, 2, 3, 0)), piece('inner', line(0, 2, 2, 2))],
 );
 
 final _level3 = LevelDef(
@@ -171,14 +154,7 @@ final _level4 = LevelDef(
       (3, 1),
       (2, 1),
     ]),
-    piece('hook', [
-      (3, 2),
-      (3, 3),
-      (3, 4),
-      (4, 4),
-      (4, 3),
-      (4, 2),
-    ]),
+    piece('hook', [(3, 2), (3, 3), (3, 4), (4, 4), (4, 3), (4, 2)]),
     piece('rise', line(1, 5, 1, 2)),
     piece('stub', line(3, 5, 4, 5), color: ThreadColors.crimson),
   ],
@@ -204,7 +180,16 @@ final _level6 = LevelDef(
   cols: 6,
   rows: 6,
   threads: [
-    piece('n', [(1, 4), (1, 3), (1, 2), (1, 1), (2, 1), (3, 1), (3, 2), (3, 3)]),
+    piece('n', [
+      (1, 4),
+      (1, 3),
+      (1, 2),
+      (1, 1),
+      (2, 1),
+      (3, 1),
+      (3, 2),
+      (3, 3),
+    ]),
     piece('bar', line(0, 0, 4, 0)),
     piece('drop', line(5, 1, 5, 5)),
     piece('base', line(0, 5, 3, 5)),
@@ -222,15 +207,7 @@ final _level7 = LevelDef(
     piece('frameTop', line(0, 0, 5, 0)),
     piece('frameRight', line(5, 1, 5, 5)),
     piece('frameLeft', line(0, 5, 0, 1)),
-    piece('innerU', [
-      (1, 4),
-      (1, 3),
-      (1, 2),
-      (2, 2),
-      (3, 2),
-      (3, 3),
-      (3, 4),
-    ]),
+    piece('innerU', [(1, 4), (1, 3), (1, 2), (2, 2), (3, 2), (3, 3), (3, 4)]),
     piece('core', [(2, 3), (2, 4), (2, 5), (3, 5), (4, 5)]),
     piece('cap', line(4, 1, 4, 3)),
   ],
@@ -305,198 +282,3 @@ final _level10 = LevelDef(
     piece('zag', [(2, 4), (3, 4)]),
   ],
 );
-
-final _level11 = _packed(
-    id: 11,
-    title: 'Level 11',
-    cols: 8,
-    rows: 8,
-    rowSplits: const [
-      [3, 8],
-      [2, 5, 8],
-      [4, 8],
-      [2, 6, 8],
-      [3, 5, 8],
-      [4, 8],
-      [2, 5, 8],
-      [3, 6, 8],
-    ],
-);
-
-final _level12 = _packed(
-    id: 12,
-    title: 'Level 12',
-    cols: 8,
-    rows: 8,
-    difficulty: 'Hard',
-    facingLeftRows: const {1, 4, 6},
-    crimsonRow: 3,
-    rowSplits: const [
-      [2, 5, 8],
-      [4, 8],
-      [3, 6, 8],
-      [2, 4, 8],
-      [5, 8],
-      [2, 6, 8],
-      [3, 8],
-      [4, 7, 8],
-    ],
-);
-
-final _level13 = _packed(
-    id: 13,
-    title: 'Level 13',
-    cols: 8,
-    rows: 8,
-    difficulty: 'Hard',
-    facingLeftRows: const {0, 2, 5, 7},
-    rowSplits: const [
-      [3, 6, 8],
-      [2, 5, 8],
-      [4, 8],
-      [3, 7, 8],
-      [2, 4, 6, 8],
-      [5, 8],
-      [3, 6, 8],
-      [2, 5, 8],
-    ],
-);
-
-final _level14 = _packed(
-    id: 14,
-    title: 'Level 14',
-    cols: 8,
-    rows: 8,
-    difficulty: 'Hard',
-    facingLeftRows: const {2, 3, 6},
-    crimsonRow: 7,
-    rowSplits: const [
-      [2, 4, 8],
-      [3, 6, 8],
-      [5, 8],
-      [2, 5, 8],
-      [4, 7, 8],
-      [3, 8],
-      [2, 4, 6, 8],
-      [5, 8],
-    ],
-);
-
-final _level19 = _packed(
-    id: 19,
-    title: 'Level 19',
-    cols: 12,
-    rows: 12,
-    difficulty: 'Hard',
-    facingLeftRows: const {1, 4, 7, 10},
-    crimsonRow: 8,
-    rowSplits: const [
-      [3, 7, 12],
-      [4, 8, 12],
-      [2, 6, 9, 12],
-      [5, 12],
-      [3, 8, 12],
-      [4, 7, 12],
-      [2, 5, 9, 12],
-      [6, 12],
-      [3, 6, 12],
-      [4, 8, 12],
-      [2, 7, 12],
-      [5, 9, 12],
-    ],
-);
-
-final _trophyLevel20 = _packed(
-  id: 20,
-  title: 'Level 20',
-  cols: 12,
-  rows: 12,
-  difficulty: 'Hard',
-  facingLeftRows: const {2, 5, 8, 11},
-  crimsonRow: 6,
-  rowSplits: const [
-    [4, 8, 12],
-    [3, 6, 9, 12],
-    [5, 12],
-    [2, 7, 12],
-    [4, 8, 12],
-    [3, 6, 10, 12],
-    [5, 9, 12],
-    [2, 6, 12],
-    [4, 7, 12],
-    [3, 8, 12],
-    [5, 12],
-    [4, 8, 12],
-  ],
-);
-
-LevelDef _packed({
-  required int id,
-  required String title,
-  required int cols,
-  required int rows,
-  required List<List<int>> rowSplits,
-  String difficulty = 'Normal',
-  Set<int> facingLeftRows = const {},
-  int crimsonRow = -1,
-}) {
-  final threads = <ThreadPiece>[];
-  var n = 0;
-  for (var r = 0; r < rows; r++) {
-    var start = 0;
-    for (final end in rowSplits[r]) {
-      if (end - start >= 2) {
-        final facingLeft = facingLeftRows.contains(r);
-        final pts = facingLeft ? line(end - 1, r, start, r) : line(start, r, end - 1, r);
-        final color =
-            r == crimsonRow && start == rowSplits[r].first - (end - start)
-                ? ThreadColors.crimson
-                : (r == crimsonRow && start == 0
-                    ? ThreadColors.crimson
-                    : ThreadColors.navy);
-        threads.add(piece('r${id}_$n', pts, color: color));
-        n += 1;
-      }
-      start = end;
-    }
-  }
-  return LevelDef(
-    id: id,
-    title: title,
-    cols: cols,
-    rows: rows,
-    difficulty: difficulty,
-    threads: threads,
-  );
-}
-
-LevelDef _columnPacked({
-  required int id,
-  required String title,
-  required int cols,
-  required int rows,
-  required List<List<int>> colSplits,
-  String difficulty = 'Normal',
-}) {
-  final threads = <ThreadPiece>[];
-  var n = 0;
-  for (var c = 0; c < cols; c++) {
-    var start = 0;
-    for (final end in colSplits[c]) {
-      if (end - start >= 2) {
-        threads.add(piece('c${id}_$n', line(c, start, c, end - 1)));
-        n += 1;
-      }
-      start = end;
-    }
-  }
-  return LevelDef(
-    id: id,
-    title: title,
-    cols: cols,
-    rows: rows,
-    difficulty: difficulty,
-    threads: threads,
-  );
-}
-

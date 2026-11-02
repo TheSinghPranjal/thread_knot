@@ -21,10 +21,7 @@ class BoardLayout {
     cell = math.max(0.0, math.min(next, maxCell));
     final gridW = cell * (cols - 1);
     final gridH = cell * (rows - 1);
-    origin = Offset(
-      (size.width - gridW) / 2,
-      (size.height - gridH) / 2,
-    );
+    origin = Offset((size.width - gridW) / 2, (size.height - gridH) / 2);
   }
 
   final int cols;

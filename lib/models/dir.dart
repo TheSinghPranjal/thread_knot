@@ -10,11 +10,11 @@ enum Dir {
   final int dr;
 
   Dir get opposite => switch (this) {
-        Dir.up => Dir.down,
-        Dir.down => Dir.up,
-        Dir.left => Dir.right,
-        Dir.right => Dir.left,
-      };
+    Dir.up => Dir.down,
+    Dir.down => Dir.up,
+    Dir.left => Dir.right,
+    Dir.right => Dir.left,
+  };
 
   static Dir fromSegment(int c0, int r0, int c1, int r1) {
     final dc = c1 - c0;

@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../models/dir.dart';
 
-Color _shade(Color c, double t) =>
-    Color.lerp(c, const Color(0xFF3A1A10), t)!;
+Color _shade(Color c, double t) => Color.lerp(c, const Color(0xFF3A1A10), t)!;
 Color _tint(Color c, double t) => Color.lerp(c, Colors.white, t)!;
 
 /// Paints a braided, rounded rope along [path].
@@ -44,8 +43,14 @@ void paintRope({
   canvas.drawPath(path, stroke(color, width * 0.8));
 
   // Braid: short diagonal strokes along the rope.
-  final braid = stroke(_shade(color, 0.35).withValues(alpha: 0.55), width * 0.08);
-  final braidLight = stroke(_tint(color, 0.4).withValues(alpha: 0.45), width * 0.06);
+  final braid = stroke(
+    _shade(color, 0.35).withValues(alpha: 0.55),
+    width * 0.08,
+  );
+  final braidLight = stroke(
+    _tint(color, 0.4).withValues(alpha: 0.45),
+    width * 0.06,
+  );
   final step = width * 0.38;
   for (final metric in path.computeMetrics()) {
     for (var d = step * 0.5; d < metric.length - step * 0.3; d += step) {

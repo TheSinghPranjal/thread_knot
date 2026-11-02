@@ -63,7 +63,8 @@ class _ThreadBoardState extends State<ThreadBoard>
   }
 
   void _startExit(ThreadPiece thread) {
-    final extra = thread.vertices.length +
+    final extra =
+        thread.vertices.length +
         (c.level.cols > c.level.rows ? c.level.cols : c.level.rows);
     final ms = (90 * extra).clamp(360, 900).round();
     final ctrl = AnimationController(
@@ -133,7 +134,11 @@ class _ThreadBoardState extends State<ThreadBoard>
     }
   }
 
-  String? _hitTest(Offset local, BoardLayout layout, List<ThreadPiece> threads) {
+  String? _hitTest(
+    Offset local,
+    BoardLayout layout,
+    List<ThreadPiece> threads,
+  ) {
     String? best;
     var bestDist = double.infinity;
     for (final thread in threads) {
@@ -152,7 +157,9 @@ class _ThreadBoardState extends State<ThreadBoard>
           final b = pixels[i];
           final ab = b - a;
           final len2 = ab.distanceSquared;
-          var t = len2 == 0 ? 0.0 : ((local - a).dx * ab.dx + (local - a).dy * ab.dy) / len2;
+          var t = len2 == 0
+              ? 0.0
+              : ((local - a).dx * ab.dx + (local - a).dy * ab.dy) / len2;
           t = t.clamp(0.0, 1.0);
           final proj = a + ab * t;
           d = (local - proj).distance;

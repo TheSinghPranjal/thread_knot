@@ -46,8 +46,14 @@ class _CompleteOverlayState extends State<CompleteOverlay>
     super.dispose();
   }
 
-  Animation<double> _interval(double a, double b, [Curve c = Curves.easeOutBack]) =>
-      CurvedAnimation(parent: _ctrl, curve: Interval(a, b, curve: c));
+  Animation<double> _interval(
+    double a,
+    double b, [
+    Curve c = Curves.easeOutBack,
+  ]) => CurvedAnimation(
+    parent: _ctrl,
+    curve: Interval(a, b, curve: c),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -64,9 +70,8 @@ class _CompleteOverlayState extends State<CompleteOverlay>
           Positioned.fill(
             child: AnimatedBuilder(
               animation: _ctrl,
-              builder: (context, _) => CustomPaint(
-                painter: _SunburstPainter(progress: _ctrl.value),
-              ),
+              builder: (context, _) =>
+                  CustomPaint(painter: _SunburstPainter(progress: _ctrl.value)),
             ),
           ),
           Positioned.fill(
@@ -203,7 +208,10 @@ class _Headline extends StatelessWidget {
         children: [
           _outlined('Path', 50, const [Colors.white, Color(0xFFF4E4FF)]),
           const SizedBox(height: 2),
-          _outlined('Cleared!', 58, const [Color(0xFFFFE45C), Color(0xFFFFA81F)]),
+          _outlined('Cleared!', 58, const [
+            Color(0xFFFFE45C),
+            Color(0xFFFFA81F),
+          ]),
         ],
       ),
     );
@@ -324,7 +332,10 @@ class _SolvedCard extends StatelessWidget {
               right: 0,
               bottom: 14,
               child: Center(
-                child: ScaleTransition(scale: check, child: const _CheckBadge()),
+                child: ScaleTransition(
+                  scale: check,
+                  child: const _CheckBadge(),
+                ),
               ),
             ),
           ],
@@ -399,11 +410,7 @@ class _NextButton extends StatelessWidget {
             const SizedBox(width: 30),
             const Icon(Icons.play_arrow_rounded, color: _purple, size: 50),
             const SizedBox(width: 10),
-            Container(
-              width: 2,
-              height: 40,
-              color: const Color(0xFFE5A21A),
-            ),
+            Container(width: 2, height: 40, color: const Color(0xFFE5A21A)),
             Expanded(
               child: Center(
                 child: FittedBox(
@@ -534,10 +541,7 @@ class _LaurelPainter extends CustomPainter {
         canvas.save();
         canvas.translate(t.position.dx, t.position.dy);
         canvas.rotate(angle + side * 0.75);
-        canvas.drawOval(
-          Rect.fromLTWH(0, -4.5, 17, 9),
-          leaf,
-        );
+        canvas.drawOval(Rect.fromLTWH(0, -4.5, 17, 9), leaf);
         canvas.restore();
       }
     }
@@ -548,11 +552,7 @@ class _LaurelPainter extends CustomPainter {
 }
 
 class FailOverlay extends StatelessWidget {
-  const FailOverlay({
-    super.key,
-    required this.onRetry,
-    required this.onMain,
-  });
+  const FailOverlay({super.key, required this.onRetry, required this.onMain});
 
   final VoidCallback onRetry;
   final VoidCallback onMain;
@@ -663,7 +663,8 @@ class _ConfettiPainter extends CustomPainter {
       final startY = -40 - rnd.nextDouble() * size.height * 0.3;
       final fall = size.height * (0.35 + rnd.nextDouble() * 0.6);
       final y = startY + fall * Curves.easeOut.transform(progress);
-      final spin = rnd.nextDouble() * math.pi + progress * (2 + rnd.nextDouble() * 4);
+      final spin =
+          rnd.nextDouble() * math.pi + progress * (2 + rnd.nextDouble() * 4);
       final w = 8 + rnd.nextDouble() * 8;
       final paint = Paint()..color = _colors[i % _colors.length];
       canvas.save();

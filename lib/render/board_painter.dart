@@ -42,6 +42,7 @@ class BoardPainter extends CustomPainter {
   final BoardLayout layout;
   final List<ThreadPiece> threads;
   final Color Function(ThreadPiece) colorOf;
+
   /// Threads sliding off, each with its animation progress (0..1).
   final List<(ThreadPiece, double)> exiting;
   final String? bumpId;
@@ -87,7 +88,7 @@ class BoardPainter extends CustomPainter {
     } else {
       final shift = thread.id == bumpId
           ? Offset(thread.facing.dc.toDouble(), thread.facing.dr.toDouble()) *
-              (layout.cell * 0.08 * math.sin(math.pi * bumpT))
+                (layout.cell * 0.08 * math.sin(math.pi * bumpT))
           : Offset.zero;
       pixels = [for (final v in thread.vertices) layout.point(v) + shift];
       knotPos = knotCenter(pixels.last, thread.facing, layout.cell) + shift;

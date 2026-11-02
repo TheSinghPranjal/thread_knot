@@ -82,10 +82,7 @@ class AppTheme {
           color: ink,
           letterSpacing: -0.8,
         ),
-        titleLarge: TextStyle(
-          fontWeight: FontWeight.w800,
-          color: ink,
-        ),
+        titleLarge: TextStyle(fontWeight: FontWeight.w800, color: ink),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: cream,

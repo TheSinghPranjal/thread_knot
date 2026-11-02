@@ -6,10 +6,7 @@ import 'occupancy.dart';
 /// Because pieces only leave the board (they never move to new cells), any
 /// currently free piece is a valid next move. Greedy peeling yields a solution
 /// iff the packing is not deadlocked.
-List<String>? solve(
-  LevelDef level, {
-  Iterable<ThreadPiece>? living,
-}) {
+List<String>? solve(LevelDef level, {Iterable<ThreadPiece>? living}) {
   final remaining = List<ThreadPiece>.from(living ?? level.threads);
   final order = <String>[];
 

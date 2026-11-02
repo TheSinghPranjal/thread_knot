@@ -8,11 +8,7 @@ import 'package:thread_knot/render/board_layout.dart';
 import 'package:thread_knot/render/exit_crawl.dart';
 
 void main() {
-  final layout = BoardLayout(
-    cols: 6,
-    rows: 6,
-    size: const Size(240, 240),
-  );
+  final layout = BoardLayout(cols: 6, rows: 6, size: const Size(240, 240));
 
   test('cell size is capped', () {
     expect(layout.cell, lessThanOrEqualTo(layout.maxCell));

@@ -198,7 +198,9 @@ BoxDecoration puffyDecoration({
 }) {
   return BoxDecoration(
     shape: shape,
-    borderRadius: shape == BoxShape.circle ? null : BorderRadius.circular(radius),
+    borderRadius: shape == BoxShape.circle
+        ? null
+        : BorderRadius.circular(radius),
     gradient: LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
@@ -421,7 +423,11 @@ class GlossyHeart extends StatelessWidget {
                   ? const [Color(0xFFFF6F86), Color(0xFFE3173F)]
                   : const [Color(0xFFF1DED6), Color(0xFFE2C7BC)],
             ).createShader(rect),
-            child: Icon(Icons.favorite_rounded, size: size, color: Colors.white),
+            child: Icon(
+              Icons.favorite_rounded,
+              size: size,
+              color: Colors.white,
+            ),
           ),
           if (filled)
             Positioned(

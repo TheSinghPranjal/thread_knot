@@ -35,8 +35,15 @@ Path _starPath(Offset c, double outer, double inner) {
   return path..close();
 }
 
-void _sparkles(Canvas canvas, Offset c, double len, double from, double to,
-    {int count = 3, Color color = const Color(0xFFFFD43B)}) {
+void _sparkles(
+  Canvas canvas,
+  Offset c,
+  double len,
+  double from,
+  double to, {
+  int count = 3,
+  Color color = const Color(0xFFFFD43B),
+}) {
   final paint = Paint()
     ..color = color
     ..strokeWidth = len * 0.32
@@ -100,7 +107,9 @@ class DailyChallengeCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(28),
         child: Stack(
           children: [
-            const Positioned.fill(child: CustomPaint(painter: _SunburstPainter())),
+            const Positioned.fill(
+              child: CustomPaint(painter: _SunburstPainter()),
+            ),
             Positioned(
               right: 4,
               top: 30,
@@ -180,7 +189,9 @@ class DailyChallengeCard extends StatelessWidget {
                       height: 1.05,
                       shadows: [
                         Shadow(
-                          color: const Color(0xFFB8322A).withValues(alpha: 0.45),
+                          color: const Color(
+                            0xFFB8322A,
+                          ).withValues(alpha: 0.45),
                           offset: const Offset(0, 3),
                           blurRadius: 4,
                         ),
@@ -215,7 +226,9 @@ class DailyChallengeCard extends StatelessWidget {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFFB8322A).withValues(alpha: 0.35),
+                            color: const Color(
+                              0xFFB8322A,
+                            ).withValues(alpha: 0.35),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           ),
@@ -320,7 +333,12 @@ class _CalendarPainter extends CustomPainter {
         ).createShader(page),
     );
     // Header band.
-    final header = Rect.fromLTWH(page.left, page.top, page.width, page.height * 0.3);
+    final header = Rect.fromLTWH(
+      page.left,
+      page.top,
+      page.width,
+      page.height * 0.3,
+    );
     canvas.save();
     canvas.clipRRect(rr(page));
     canvas.drawRect(
@@ -340,7 +358,10 @@ class _CalendarPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = w * 0.055
       ..strokeCap = StrokeCap.round;
-    for (final x in [page.left + page.width * 0.28, page.left + page.width * 0.72]) {
+    for (final x in [
+      page.left + page.width * 0.28,
+      page.left + page.width * 0.72,
+    ]) {
       canvas.drawArc(
         Rect.fromCenter(
           center: Offset(x, page.top + w * 0.02),
@@ -431,10 +452,7 @@ class ToyButton extends StatelessWidget {
               colors: [Color(0xFFFF7E6B), Color(0xFFE9473A)],
             ),
             boxShadow: const [
-              BoxShadow(
-                color: Color(0xFFC0332A),
-                offset: Offset(0, 5),
-              ),
+              BoxShadow(color: Color(0xFFC0332A), offset: Offset(0, 5)),
             ],
           ),
           child: Stack(
@@ -493,8 +511,9 @@ class ToyButton extends StatelessWidget {
                             height: 1.05,
                             shadows: [
                               Shadow(
-                                color: const Color(0xFFA82A22)
-                                    .withValues(alpha: 0.5),
+                                color: const Color(
+                                  0xFFA82A22,
+                                ).withValues(alpha: 0.5),
                                 offset: const Offset(0, 2),
                                 blurRadius: 3,
                               ),
@@ -605,7 +624,10 @@ class BrandMark extends StatelessWidget {
                 ],
               ),
             ),
-            Text('Thread Knot', style: style.copyWith(color: const Color(0xFF2E1A47))),
+            Text(
+              'Thread Knot',
+              style: style.copyWith(color: const Color(0xFF2E1A47)),
+            ),
           ],
         ),
       ],
@@ -621,10 +643,15 @@ class _KnotMarkPainter extends CustomPainter {
     final w = size.width;
     final c = Offset(w * 0.55, w * 0.45);
     final swirl = Path()
-      ..addArc(Rect.fromCircle(center: c, radius: w * 0.3), math.pi * 0.6,
-          math.pi * 1.85)
-      ..moveTo(c.dx + w * 0.3 * math.cos(math.pi * 0.6),
-          c.dy + w * 0.3 * math.sin(math.pi * 0.6))
+      ..addArc(
+        Rect.fromCircle(center: c, radius: w * 0.3),
+        math.pi * 0.6,
+        math.pi * 1.85,
+      )
+      ..moveTo(
+        c.dx + w * 0.3 * math.cos(math.pi * 0.6),
+        c.dy + w * 0.3 * math.sin(math.pi * 0.6),
+      )
       ..quadraticBezierTo(w * 0.3, w * 0.98, w * 0.08, w * 0.78);
     Paint s(Color color, double width) => Paint()
       ..color = color
@@ -688,16 +715,21 @@ class _KnotHeroPainter extends CustomPainter {
     void rope(Path p, Color c) =>
         paintRope(canvas: canvas, path: p, color: c, width: w);
     void knot(Offset at, Color c, Dir facing) => paintKnot(
-          canvas: canvas,
-          center: at,
-          facing: facing,
-          cell: knotCell,
-          stroke: w,
-          color: c,
-        );
+      canvas: canvas,
+      center: at,
+      facing: facing,
+      cell: knotCell,
+      stroke: w,
+      color: c,
+    );
 
     // Gold: vertical, knot pointing up.
-    rope(Path()..moveTo(160, 130)..lineTo(160, 40), _gold);
+    rope(
+      Path()
+        ..moveTo(160, 130)
+        ..lineTo(160, 40),
+      _gold,
+    );
     knot(const Offset(160, 40), _gold, Dir.up);
 
     // Teal: L-shape, knot pointing right, blocked by gold.
@@ -719,7 +751,12 @@ class _KnotHeroPainter extends CustomPainter {
       canvas.drawLine(Offset(x, 112), Offset(x + 6, 112), trail);
       canvas.drawLine(Offset(x + 4, 148), Offset(x + 10, 148), trail);
     }
-    rope(Path()..moveTo(214, 130)..lineTo(266, 130), _coral);
+    rope(
+      Path()
+        ..moveTo(214, 130)
+        ..lineTo(266, 130),
+      _coral,
+    );
     knot(const Offset(266, 130), _coral, Dir.right);
 
     _sparkles(

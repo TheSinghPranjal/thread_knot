@@ -10,14 +10,15 @@ class HomeScreen extends StatelessWidget {
 
   final ProgressStore progress;
 
-  void _openGame(BuildContext context, {required int index, bool daily = false}) {
+  void _openGame(
+    BuildContext context, {
+    required int index,
+    bool daily = false,
+  }) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => GameScreen(
-          progress: progress,
-          levelIndex: index,
-          isDaily: daily,
-        ),
+        builder: (_) =>
+            GameScreen(progress: progress, levelIndex: index, isDaily: daily),
       ),
     );
   }
@@ -68,10 +69,8 @@ class HomeScreen extends StatelessWidget {
                   ToyButton(
                     label: 'Continue',
                     subtitle: level.title,
-                    onTap: () => _openGame(
-                      context,
-                      index: progress.campaignIndex,
-                    ),
+                    onTap: () =>
+                        _openGame(context, index: progress.campaignIndex),
                   ),
                   const SizedBox(height: 18),
                   SoftPillButton(

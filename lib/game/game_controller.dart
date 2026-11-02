@@ -17,6 +17,7 @@ class GameController extends ChangeNotifier {
   final LevelDef level;
 
   late List<ThreadPiece> remaining;
+
   /// Threads currently sliding off the board. Several can leave at once.
   final List<ThreadPiece> exiting = [];
   GameStatus status = GameStatus.playing;

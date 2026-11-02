@@ -40,8 +40,9 @@ class ProfileAvatar extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: (selected ? AppTheme.coral : profile.color)
-                .withValues(alpha: selected ? 0.4 : 0.25),
+            color: (selected ? AppTheme.coral : profile.color).withValues(
+              alpha: selected ? 0.4 : 0.25,
+            ),
             blurRadius: selected ? 14 : 8,
             offset: const Offset(0, 4),
           ),
@@ -80,7 +81,9 @@ class ProfilePicker extends StatelessWidget {
                   p.label,
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight: p == current ? FontWeight.w900 : FontWeight.w600,
+                    fontWeight: p == current
+                        ? FontWeight.w900
+                        : FontWeight.w600,
                     color: p == current ? AppTheme.coral : AppTheme.muted,
                   ),
                 ),

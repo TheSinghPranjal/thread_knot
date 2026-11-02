@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:thread_knot/data/level_generator.dart';
 import 'package:thread_knot/data/levels.dart';
 import 'package:thread_knot/data/piece_builder.dart';
 import 'package:thread_knot/game/level_validator.dart';
@@ -43,7 +44,7 @@ void main() {
   });
 
   test('every campaign level is valid and solvable', () {
-    expect(campaignLevels.length, greaterThanOrEqualTo(20));
+    expect(campaignLevels.length, greaterThanOrEqualTo(100));
     for (final level in campaignLevels) {
       validateLevel(level);
       final occupancy = Occupancy.fromThreads(level.threads);
@@ -58,9 +59,49 @@ void main() {
       for (final thread in level.threads) {
         for (final vertex in thread.vertices) {
           final key = '${vertex.c},${vertex.r}';
-          expect(seen.add(key), isTrue, reason: '${level.title} overlap at $key');
+          expect(
+            seen.add(key),
+            isTrue,
+            reason: '${level.title} overlap at $key',
+          );
         }
       }
     }
+  });
+
+  test('generated levels keep only 2-3 threads movable and get harder', () {
+    var prevCells = 0;
+    for (var i = 10; i < campaignLevels.length; i++) {
+      final level = campaignLevels[i];
+      final spec = specForLevel(level.id);
+      final s = measureLevel(level);
+      final why =
+          '${level.title}: free=${s.initialFree} '
+          'maxFree=${s.maxFreeDuringPlay} depth=${s.depth}';
+      expect(s.initialFree, inInclusiveRange(2, 3), reason: why);
+      expect(
+        s.maxFreeDuringPlay,
+        lessThanOrEqualTo(spec.maxFreeDuringPlay),
+        reason: why,
+      );
+      expect(s.depth, greaterThanOrEqualTo(spec.minDepth), reason: why);
+      expect(s.directions.length, greaterThanOrEqualTo(2), reason: why);
+      expect(s.bentThreads, greaterThan(0), reason: why);
+      // Boards only grow, apart from the small every-5th-level bump.
+      final cells = level.cols * level.rows;
+      if (level.id % 5 != 1) {
+        expect(cells, greaterThanOrEqualTo(prevCells), reason: why);
+      }
+      prevCells = cells;
+    }
+  });
+
+  test('generated levels are identical every time', () {
+    final a = generateLevel(id: 77, spec: specForLevel(77), seed: 77);
+    final b = generateLevel(id: 77, spec: specForLevel(77), seed: 77);
+    expect(
+      a.threads.map((t) => t.vertices.toString()).toList(),
+      b.threads.map((t) => t.vertices.toString()).toList(),
+    );
   });
 }
